@@ -1,16 +1,23 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
-import Feed from './pages/Feed';
+import Feed from "./pages/Feed";
+import Protected from "./components/Protected";
 
 const App = () => {
-  return (  <BrowserRouter>
-<Routes>
-  <Route path="/" element= {<Login/>} />
-  <Route path="/feed" element= {<Feed/>} />
+  return (
+    <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
 
-</Routes>
-  </BrowserRouter>
- );
+          <Route element={<Protected />}>
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/settings" element={"AYARLAR"} />
+            <Route path="/profile" element={"PROFIL"} />
+            <Route path="/friends" element={"ARKADASLAR"} />
+          </Route>
+        </Routes>
+    </BrowserRouter>
+  );
 };
 
 export default App;

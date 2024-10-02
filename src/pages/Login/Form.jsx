@@ -1,13 +1,13 @@
-import { createUserWithEmailAndPassword} from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-
+import ResetButton from "./ResetButton";
 
 const Form = () => {
-  const [IsSignUp, setIsSignUp] = useState(false);
-  const [IsError, setIsError] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
 
@@ -16,31 +16,37 @@ const Form = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (IsSignUp) {
-      // Yeni kullanici hesabi olustur
+    if (isSignUp) {
+      // Yeni kullanıcı hesabı oluştur
       createUserWithEmailAndPassword(auth, email, pass)
         .then(() => {
-          toast.success("Hesabiniz olusturuldu");
-          navigate("(/feed");
-        })
-        .catch((err) => toast.error("Hata!: " + err.code));
-    } else {
-      //Varolan hesaba giris yap
-      signInWithEmailAndPassword(auth, email, pass)
-        .then(() => {
-          toast.success("Hesaba giris yapildi");
-          navigate("(/feed");
+          toast.success("Hesabınız Oluşturuldu");
+          navigate("/feed");
         })
         .catch((err) => {
-          toast.error("Hata!: " + err.code);
+          toast.error("Hata! :  " + err.code);
+          if (err.code === "auth/invalid-credential") {
+            setIsError(true);
+          }
+        });
+    } else {
+      // Varolan hesaba giriş yap
+      signInWithEmailAndPassword(auth, email, pass)
+        .then(() => {
+          toast.success("Hesaba Giriş Yapıldı");
+          navigate("/feed");
+        })
+        .catch((err) => {
+          toast.error("Hata! :  " + err.code);
           if (err.code === "auth/invalid-credential") {
             setIsError(true);
           }
         });
     }
   };
+
   return (
-    <>
+    <div>
       <form onSubmit={handleSubmit} className="flex flex-col">
         <label>Email</label>
         <input
@@ -50,32 +56,33 @@ const Form = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <label>Sifre</label>
+        <label className="mt-5">Şifre</label>
         <input
           type="text"
           required
           className="text-black rounded mt-1 p-2 outline-none shadow-lg focus:shadow-[gray]"
           onChange={(e) => setPass(e.target.value)}
         />
+
         <button className="mt-10 bg-white text-black rounded-full p-1 font-bold transition hover:bg-gray-300">
-          {isSignUp ? "Kaydol" : "Giris Yap"}
+          {isSignUp ? "Kaydol" : "Giriş Yap"}
         </button>
       </form>
+
       <p className="mt-5">
         <span className="text-gray-500">
-          {isSignUp ? "Hesabiniz varsa" : " Hesabiniz yoksa"}
+          {isSignUp ? "Hesabınız Varsa" : "Hesabınız Yoksa"}
         </span>
         <span
-          onClick={() => setIsSignUp(!IsSignUp)}
+          onClick={() => setIsSignUp(!isSignUp)}
           className="cursor-pointer ms-2 text-blue-500"
         >
-          {isSignUp ? "Giris Yapin" : "Kaydolun"}
+          {isSignUp ? "Giriş Yapın" : "Kaydolun"}
         </span>
       </p>
 
       {isError && <ResetButton email={email} />}
-
-    </>
+    </div>
   );
 };
 
